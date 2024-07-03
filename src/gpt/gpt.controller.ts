@@ -2,9 +2,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { GptService } from './gpt.service';
-import { OrthographyDto, ProsConsDiscusserDto, TranslateDto } from './dtos';
+import { OrthographyDto, ProsConsDiscusserDto, TextToaudioDto, TranslateDto } from './dtos';
 import { Response } from 'express';
 
 
@@ -42,5 +42,35 @@ export class GptController {
   translate(@Body() translateDto: TranslateDto) {
     return this.gptService.translate(translateDto)
   }
+  
+  @Get('text-to-audio/:fileId')
+  async textToAudioGetter(
+  
+    @Res() res:Response,
+    @Param('fileId') fileId:string 
+  ) {
+
+  const filePath =  await this.gptService.textToAudioGet( fileId )
+  
+      res.setHeader('Content-Type', 'audio/mp3');
+      res.status(HttpStatus.OK);
+      res.sendFile( filePath );
+    
+  }
+
+  
+  @Post('text-to-audio')
+  async textToAudio(
+    @Body() textToAudioDto: TextToaudioDto,
+    @Res() res:Response
+  ) {
+    const filePath = await this.gptService.textToAudio(textToAudioDto);
+
+    res.setHeader('Content-Type', 'audio/mp3');
+    res.status(HttpStatus.OK);
+    res.sendFile( filePath )
+  }
+
+
 
 }
